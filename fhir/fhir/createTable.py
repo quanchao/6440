@@ -14,22 +14,15 @@ TABLES['Dispense'] = (
     "  `dispenseID` int(11) NOT NULL AUTO_INCREMENT,"
     "  `whenPrepared` date NOT NULL,"
     "  `PatientDisease` varchar(14) NOT NULL,"
-     "  `medicationId` int(11) NOT NULL,"
    "  PRIMARY KEY (`dispenseID`)"
-  #  "  CONSTRAINT `dispenseContains` FOREIGN KEY (`medicationId`) "
-  #  "     REFERENCES `Medication` (`medicationId`) "
     ") ENGINE=InnoDB")
 
 TABLES['Medication'] = (
     "CREATE TABLE `Medication` ("
     "  `medicationId` int(11) NOT NULL AUTO_INCREMENT,"
-    "  `medicationCodingSystem` varchar(14) NOT NULL,"
-    "  `medicationCodingID` varchar(14) NOT NULL,"
-    "  `ingredientCodingSystem` varchar(14) NOT NULL,"
-    "  `ingredientCodingID` varchar(14) NOT NULL,"
+    "  `CodingSystem` varchar(14) NOT NULL,"
+    "  `CodingID` varchar(14) NOT NULL,"
     "  PRIMARY KEY (`medicationId`)"
-     #"  CONSTRAINT `dispenseContains` FOREIGN KEY (`ingredientCodingSystem`, `ingredientCodingID`) "
-    # "     REFERENCES `Ingredient`(`codingSystem`, `codingID`) "
     ") ENGINE=InnoDB")
 
 
@@ -44,13 +37,43 @@ TABLES['Ingredient'] = (
 TABLES['Patient'] = (
     "CREATE TABLE `Patient` ("
     "  `patientID` int(14)  NOT NULL AUTO_INCREMENT,"
-    "`allergyCodingSystem`varchar(14)  NOT NULL , "
-    "`allergyCodingID`varchar(14)  NOT NULL , "
     " PRIMARY KEY (`patientID`)"
-   # "  CONSTRAINT `dispenseContains` FOREIGN KEY (`allergyCodingSystem`, `allergyCodingID`) "
-   #  "     REFERENCES `Ingredient`(`codingSystem`, `codingID`) "
     ") ENGINE=InnoDB")
 
+TABLES['MedicationDispense'] = (
+    "CREATE TABLE `MedicationDispense` ("
+    "  `dispenseID` int(11) NOT NULL AUTO_INCREMENT,"
+     "  `medicationId` int(11) NOT NULL,"
+   "  PRIMARY KEY (`dispenseID`,  `medicationId`),"
+    "  CONSTRAINT `dispense1` FOREIGN KEY (`dispenseID`) "
+    "     REFERENCES `Dispense` (`dispenseID`), "
+    "  CONSTRAINT `medication1` FOREIGN KEY (`medicationId`) "
+    "     REFERENCES `Medication` (`medicationId`) "
+    ") ENGINE=InnoDB")
+
+TABLES['MedicationIngredient'] = (
+    "CREATE TABLE `MedicationIngredient` ("
+     "  `medicationId` int(11) NOT NULL,"
+     "  `codingSystem` varchar(14) NOT NULL,"
+    "  `codingID` varchar(14) NOT NULL,"
+   "  PRIMARY KEY ( `medicationId`, `codingSystem` ,  `codingID`),"
+    "  CONSTRAINT `medication2` FOREIGN KEY (`medicationId`) "
+    "     REFERENCES `Medication` (`medicationId`), "
+    "  CONSTRAINT `ingredient1` FOREIGN KEY (`codingSystem` ,  `codingID`) "
+    "     REFERENCES `Ingredient` (`codingSystem` ,  `codingID`) "
+    ") ENGINE=InnoDB")
+
+TABLES['Allergy'] = (
+    "CREATE TABLE `Allergy` ("
+     "  `patientID` int(11) NOT NULL,"
+     "  `codingSystem` varchar(14) NOT NULL,"
+    "  `codingID` varchar(14) NOT NULL,"
+   "  PRIMARY KEY ( `patientID`, `codingSystem` ,  `codingID`),"
+    "  CONSTRAINT `patient1` FOREIGN KEY (`patientID`) "
+    "     REFERENCES `Patient` (`patientID`), "
+    "  CONSTRAINT `ingredient2` FOREIGN KEY (`codingSystem` ,  `codingID`) "
+    "     REFERENCES `Ingredient` (`codingSystem` ,  `codingID`) "
+    ") ENGINE=InnoDB")
 
 def create_database(cursor):
     try:
